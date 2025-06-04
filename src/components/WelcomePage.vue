@@ -205,23 +205,23 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import {computed, onMounted, ref, watch} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
 import axios from 'axios'
 import ProductDetails from './ProductDetails.vue'
-import { Map, View, Feature, Overlay } from 'ol'
-import { Point } from 'ol/geom'
-import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
-import { OSM, Vector as VectorSource } from 'ol/source'
-import { Style, Icon } from 'ol/style'
+import {Feature, Map, Overlay, View} from 'ol'
+import {Point} from 'ol/geom'
+import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer'
+import {OSM, Vector as VectorSource} from 'ol/source'
+import {Icon, Style} from 'ol/style'
 import 'ol/ol.css'
-import { fromLonLat } from 'ol/proj'
+import {fromLonLat} from 'ol/proj'
 
 const router = useRouter()
 const route = useRoute()
 const tabs = ['Корзина', 'Товары', 'Профиль']
 const currentTab = ref('Товары')
-const profile = ref({ username: '', email: '', created: '', role: '' })
+const profile = ref({username: '', email: '', created: '', role: ''})
 const isGuest = ref(true)
 const loading = ref(true)
 const message = ref('')
@@ -251,11 +251,9 @@ const setTab = (tab) => {
   localStorage.setItem(getTabStorageKey(), tab)
 }
 
-
 watch(() => route.path, () => {
   loadSavedTab()
 })
-
 
 const filteredProducts = computed(() => {
   return products.value.filter(p =>
@@ -267,16 +265,13 @@ const totalPrice = computed(() => {
   return cart.value.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)
 })
 
-
 const isInCart = (productId) => {
   return cart.value.some(item => item.id === productId)
 }
 
-
 const getCartItem = (productId) => {
   return cart.value.find(item => item.id === productId)
 }
-
 
 const saveCartToLocalStorage = () => {
   const cartData = cart.value.map(item => ({
@@ -285,7 +280,6 @@ const saveCartToLocalStorage = () => {
   }))
   localStorage.setItem('cart', JSON.stringify(cartData))
 }
-
 
 const loadCartFromLocalStorage = () => {
   const savedCart = localStorage.getItem('cart')
@@ -307,7 +301,6 @@ const loadCartFromLocalStorage = () => {
   }
 }
 
-
 const validateQuantity = (productId) => {
   const item = getCartItem(productId)
   if (item) {
@@ -322,7 +315,6 @@ const validateQuantity = (productId) => {
   }
 }
 
-
 let debounceTimeout = null
 const debounceSaveUsername = () => {
   clearTimeout(debounceTimeout)
@@ -330,7 +322,6 @@ const debounceSaveUsername = () => {
     saveUsername()
   }, 1000)
 }
-
 
 const saveUsername = async () => {
   if (isGuest.value || !profile.value.username.trim()) {
@@ -342,7 +333,7 @@ const saveUsername = async () => {
   }
   saving.value = true
   try {
-    await axios.put('/api/user/profile', profile.value, { withCredentials: true })
+    await axios.put('/api/user/profile', profile.value, {withCredentials: true})
     message.value = 'Имя пользователя сохранено'
     error.value = ''
     setTimeout(() => {
@@ -358,11 +349,11 @@ const saveUsername = async () => {
 
 const logout = async () => {
   try {
-    await axios.post('/logout', {}, { withCredentials: true })
+    await axios.post('/logout', {}, {withCredentials: true})
     localStorage.removeItem('auth')
   } catch {
   }
-  profile.value = { username: 'Гость', email: 'Неизвестно', created: '', role: '' }
+  profile.value = {username: 'Гость', email: 'Неизвестно', created: '', role: ''}
   isGuest.value = true
   router.push('/log')
 }
@@ -378,7 +369,6 @@ const goToAdmin = () => router.push('/admin')
 const goToOrderHistory = () => router.push('/order-history')
 
 const goToActiveOrders = () => router.push('/order-active')
-
 
 const addToCart = (product) => {
   if (isGuest.value) {
@@ -400,7 +390,6 @@ const addToCart = (product) => {
   saveCartToLocalStorage()
 }
 
-
 const increaseQuantity = (productId) => {
   const item = getCartItem(productId)
   if (item && item.quantity < 100) {
@@ -412,7 +401,6 @@ const increaseQuantity = (productId) => {
   }
 }
 
-
 const decreaseQuantity = (productId) => {
   const item = getCartItem(productId)
   if (item && item.quantity > 1) {
@@ -423,7 +411,6 @@ const decreaseQuantity = (productId) => {
     removeFromCart(productId)
   }
 }
-
 
 const removeFromCart = (productId) => {
   const item = getCartItem(productId)
@@ -443,7 +430,6 @@ const clearCart = () => {
   alertShow('Корзина очищена')
   saveCartToLocalStorage()
 }
-
 
 const placeOrder = async () => {
   if (isGuest.value) {
@@ -492,12 +478,10 @@ const placeOrder = async () => {
   }
 }
 
-
 const openProduct = (id) => {
   selectedProductId.value = id
   showModal.value = true
 }
-
 
 const closeModal = () => {
   showModal.value = false
@@ -512,7 +496,6 @@ const alertShow = (text, isError = false) => {
     alertIsError.value = false
   }, 2500)
 }
-
 
 let map = null
 const initMap = () => {
@@ -566,7 +549,6 @@ const initMap = () => {
   }, 100)
 }
 
-
 onMounted(async () => {
   loadSavedTab()
 
@@ -589,7 +571,6 @@ onMounted(async () => {
     console.error('Ошибка при загрузке продуктов', e)
   }
 
-  // Инициализация карты при монтировании, если выбрана вкладка профиля
   if (currentTab.value === 'Профиль') {
     initMap()
   }
@@ -603,7 +584,6 @@ watch(currentTab, (newTab) => {
 </script>
 
 <style scoped>
-
 html, body {
   margin: 0;
   padding: 0;
@@ -875,8 +855,7 @@ html, body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  max-height: calc(100vh - 48px - 2rem - 60px - 2rem - 40px);
-  padding: 1rem;
+  padding: 0.5rem; /* Уменьшаем padding для экономии пространства */
   overflow-x: hidden;
   overflow-y: auto;
   scroll-behavior: smooth;
@@ -885,11 +864,11 @@ html, body {
 }
 
 .cart-products-list {
-  max-height: calc(100vh - 48px - 2rem - 60px - 2rem - 60px - 2rem);
+  max-height: calc(100vh - 48px - 2rem - 60px - 2rem - 60px - 1rem); /* Уточняем высоту для корзины */
 }
 
 .products-tab-list {
-  max-height: calc(100vh - 48px - 2rem - 60px - 2rem - 40px);
+  max-height: calc(100vh - 48px - 2rem - 60px - 2rem - 40px - 3rem); /* Увеличиваем буфер для вкладки товаров */
 }
 
 .products-list::-webkit-scrollbar {
@@ -935,7 +914,7 @@ html, body {
 
 .product-image-wrapper {
   width: 100%;
-  height: 250px;
+  height: 180px; /* Уменьшаем высоту изображения */
   overflow: hidden;
   border-radius: 10px;
   margin-bottom: 1rem;
@@ -1185,10 +1164,28 @@ html, body {
   }
 }
 
+@media (max-height: 700px) {
+  .products-tab-list {
+    max-height: calc(100vh - 48px - 2rem - 60px - 2rem - 40px - 2rem); /* Дополнительный буфер для низких экранов */
+  }
+
+  .product-image-wrapper {
+    height: 160px; /* Еще меньше высота для низких экранов */
+  }
+}
+
 @media (max-width: 600px) {
   .products-list {
     grid-template-columns: repeat(1, 1fr);
     padding: 0.5rem;
+  }
+
+  .products-tab-list {
+    max-height: calc(100vh - 48px - 1rem - 60px - 1rem - 40px - 2rem); /* Уменьшаем отступы для мобильных */
+  }
+
+  .product-image-wrapper {
+    height: 150px; /* Еще меньше высота для мобильных */
   }
 
   .profile-input-wrapper {

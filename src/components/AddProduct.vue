@@ -82,17 +82,6 @@
               min="0"
               required
           />
-          <label class="form-label" for="quantity">Количество</label>
-          <input
-              id="quantity"
-              type="number"
-              v-model.number="productForm.quantity"
-              class="form-input"
-              min="0"
-              placeholder="Введите количество на складе"
-              step="1"
-              required
-          />
           <label class="form-label" for="manufacturer">Производитель</label>
           <v-select
               id="manufacturer"
@@ -240,7 +229,6 @@ const productForm = ref({
   name: '',
   description: '',
   price: null,
-  quantity: null,
   manufacturerName: '',
   imageFile: null
 });
@@ -345,7 +333,6 @@ async function submitProduct() {
     formData.append('name', productForm.value.name);
     formData.append('description', productForm.value.description);
     formData.append('price', productForm.value.price);
-    formData.append('quantity', productForm.value.quantity);
     formData.append('manufacturerName', productForm.value.manufacturerName);
     formData.append('imageFile', productForm.value.imageFile);
 
@@ -358,7 +345,6 @@ async function submitProduct() {
       name: '',
       description: '',
       price: null,
-      quantity: null,
       manufacturerName: '',
       imageFile: null
     };
